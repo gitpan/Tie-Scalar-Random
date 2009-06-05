@@ -1,66 +1,56 @@
-#!perl
 package Tie::Scalar::Random;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
-sub TIESCALAR
-{
+sub TIESCALAR {
     my $class = shift;
     my $remember_all = shift;
-    if ($remember_all)
-    {
+    if ($remember_all) {
         return bless {remember_all => 1, values => []}, $class;
     }
-    else
-    {
+    else {
         return bless {assigned => 0, value => undef}, $class;
     }
 }
 
-sub FETCH
-{
+sub FETCH {
     my $self = shift;
 
-    if ($self->{remember_all})
-    {
+    if ($self->{remember_all}) {
         return $self->{values}->[ rand @{$self->{values}} ];
     }
 
     return $self->{value};
 }
 
-sub STORE
-{
+sub STORE {
     my $self = shift;
     my $value = shift;
 
-    if ($self->{remember_all})
-    {
+    if ($self->{remember_all}) {
         push @{ $self->{values} }, $value;
     }
-    elsif (rand(++$self->{assigned}) < 1)
-    {
+    elsif (rand(++$self->{assigned}) < 1) {
         $self->{value} = $value;
     }
 
     return $self->FETCH;
 }
 
-sub DESTROY
-{
+sub DESTROY {
     my $self = shift;
     %$self = ();
 }
 
+1;
+
+__END__
+
 =head1 NAME
 
 Tie::Scalar::Random - fetch a randomly selected assigned value
-
-=head1 VERSION
-
-Version 0.01 released 04 Aug 07
 
 =head1 SYNOPSIS
 
@@ -80,8 +70,6 @@ Version 0.01 released 04 Aug 07
     print $line;           # a random line from STDIN
     print $line;           # a possibly different random line from STDIN
     die if $line ne $line; # will probably die
-
-=cut
 
 =head1 USAGE
 
@@ -108,58 +96,16 @@ time (so C<$line eq $line> may not hold true).
 Once the variable has been tied, it will produce C<undef> (even if it had a
 genuine value before C<tie>) until something is assigned to it.
 
-=head1 WHY?
-
-Why not? :)
-
 =head1 AUTHOR
 
-Shawn M Moore, C<< <sartak at gmail.com> >>
-
-=head1 BUGS
-
-No known bugs.
-
-Please report any bugs through RT: email 
-C<bug-tie-scalar-random at rt.cpan.org>, or browse to
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Tie-Scalar-Random>.
-
-=head1 SUPPORT
-
-You can find this documentation for this module with the perldoc command.
-
-    perldoc Tie::Scalar::Random
-
-You can also look for information at:
-
-=over 4
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Tie-Scalar-Random>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Tie-Scalar-Random>
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Tie-Scalar-Random>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Tie-Scalar-Random>
-
-=back
+Shawn M Moore, C<sartak@gmail.com>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2007 Shawn M Moore.
+Copyright 2007-2009 Shawn M Moore.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
-
-1;
 
